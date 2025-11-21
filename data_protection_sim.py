@@ -15,45 +15,91 @@ st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 
-    html, body, [class*="css"] {
+    /* Global Theme */
+    .stApp {
+        background-color: #0e1117;
+        color: #fafafa;
         font-family: 'Inter', sans-serif;
     }
 
-    .stApp {
-        background-color: #f8f9fa;
-    }
-
-    /* Sidebar Styling */
+    /* Sidebar */
     section[data-testid="stSidebar"] {
-        background-color: #ffffff;
-        border-right: 1px solid #e9ecef;
+        background-color: #161b22;
+        border-right: 1px solid #30363d;
+    }
+    section[data-testid="stSidebar"] h1 {
+        color: #58a6ff;
     }
 
-    /* Button Styling */
+    /* Headings */
+    h1, h2, h3 {
+        color: #ffffff !important;
+        font-weight: 700;
+    }
+    h1 {
+        background: -webkit-linear-gradient(45deg, #58a6ff, #8b949e);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    /* Buttons */
     .stButton > button {
-        background-color: #007bff;
+        background: linear-gradient(90deg, #238636 0%, #2ea043 100%);
         color: white;
         border: none;
-        border-radius: 8px;
-        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        padding: 0.6rem 1.2rem;
         font-weight: 600;
-        transition: all 0.2s ease;
+        box-shadow: 0 4px 12px rgba(35, 134, 54, 0.3);
+        transition: all 0.3s ease;
     }
     .stButton > button:hover {
-        background-color: #0056b3;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(35, 134, 54, 0.4);
+    }
+    .stButton > button:active {
+        transform: translateY(0);
     }
 
-    /* Headers */
-    h1, h2, h3 {
-        color: #2c3e50;
-    }
-    
     /* Cards/Containers */
     div[data-testid="stVerticalBlock"] > div[style*="background-color"] {
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 12px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        padding: 20px;
+        backdrop-filter: blur(10px);
     }
+    
+    /* Inputs */
+    .stTextInput > div > div > input {
+        background-color: #0d1117;
+        color: white;
+        border: 1px solid #30363d;
+        border-radius: 6px;
+    }
+    
+    /* Radio Buttons */
+    .stRadio > label {
+        color: #c9d1d9 !important;
+    }
+    
+    /* Success/Error Messages */
+    .stSuccess {
+        background-color: rgba(35, 134, 54, 0.1);
+        border: 1px solid #238636;
+        color: #3fb950;
+    }
+    .stError {
+        background-color: rgba(218, 54, 51, 0.1);
+        border: 1px solid #da3633;
+        color: #f85149;
+    }
+    
+    /* Progress Bar */
+    .stProgress > div > div > div > div {
+        background-color: #58a6ff;
+    }
+
 </style>
 """, unsafe_allow_html=True)
 
