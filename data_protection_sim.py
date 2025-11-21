@@ -10,6 +10,53 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# --- Custom CSS ---
+st.markdown("""
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+    html, body, [class*="css"] {
+        font-family: 'Inter', sans-serif;
+    }
+
+    .stApp {
+        background-color: #f8f9fa;
+    }
+
+    /* Sidebar Styling */
+    section[data-testid="stSidebar"] {
+        background-color: #ffffff;
+        border-right: 1px solid #e9ecef;
+    }
+
+    /* Button Styling */
+    .stButton > button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+    .stButton > button:hover {
+        background-color: #0056b3;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    /* Headers */
+    h1, h2, h3 {
+        color: #2c3e50;
+    }
+    
+    /* Cards/Containers */
+    div[data-testid="stVerticalBlock"] > div[style*="background-color"] {
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
+</style>
+""", unsafe_allow_html=True)
+
 # --- State Management ---
 if 'score' not in st.session_state:
     st.session_state.score = 0
