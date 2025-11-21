@@ -1,6 +1,9 @@
 import streamlit as st
 import time
 import random
+import csv
+import os
+from datetime import datetime
 
 # Page Configuration
 st.set_page_config(
@@ -10,96 +13,67 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- Custom CSS ---
+# --- Custom CSS (Light Mode + Poppins) ---
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
 
-    /* Global Theme */
+    html, body, [class*="css"] {
+        font-family: 'Poppins', sans-serif;
+    }
+
     .stApp {
-        background-color: #0e1117;
-        color: #fafafa;
-        font-family: 'Inter', sans-serif;
+        background-color: #f4f7f6;
+        color: #333333;
     }
 
-    /* Sidebar */
+    /* Sidebar Styling */
     section[data-testid="stSidebar"] {
-        background-color: #161b22;
-        border-right: 1px solid #30363d;
+        background-color: #ffffff;
+        border-right: 1px solid #e0e0e0;
     }
-    section[data-testid="stSidebar"] h1 {
-        color: #58a6ff;
-    }
-
-    /* Headings */
+    
+    /* Headers */
     h1, h2, h3 {
-        color: #ffffff !important;
+        color: #2c3e50;
         font-weight: 700;
     }
-    h1 {
-        background: -webkit-linear-gradient(45deg, #58a6ff, #8b949e);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-
+    
     /* Buttons */
     .stButton > button {
-        background: linear-gradient(90deg, #238636 0%, #2ea043 100%);
+        background-color: #3498db;
         color: white;
         border: none;
-        border-radius: 6px;
-        padding: 0.6rem 1.2rem;
+        border-radius: 8px;
+        padding: 0.5rem 1.5rem;
         font-weight: 600;
-        box-shadow: 0 4px 12px rgba(35, 134, 54, 0.3);
-        transition: all 0.3s ease;
+        transition: all 0.2s ease;
     }
     .stButton > button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(35, 134, 54, 0.4);
-    }
-    .stButton > button:active {
-        transform: translateY(0);
+        background-color: #2980b9;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
 
     /* Cards/Containers */
     div[data-testid="stVerticalBlock"] > div[style*="background-color"] {
-        background-color: rgba(255, 255, 255, 0.05) !important;
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background-color: #ffffff;
         border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         padding: 20px;
-        backdrop-filter: blur(10px);
+        border: 1px solid #eaeaea;
     }
     
-    /* Inputs */
-    .stTextInput > div > div > input {
-        background-color: #0d1117;
-        color: white;
-        border: 1px solid #30363d;
-        border-radius: 6px;
-    }
-    
-    /* Radio Buttons */
-    .stRadio > label {
-        color: #c9d1d9 !important;
-    }
-    
-    /* Success/Error Messages */
+    /* Success/Error */
     .stSuccess {
-        background-color: rgba(35, 134, 54, 0.1);
-        border: 1px solid #238636;
-        color: #3fb950;
+        background-color: #d4edda;
+        color: #155724;
+        border-color: #c3e6cb;
     }
     .stError {
-        background-color: rgba(218, 54, 51, 0.1);
-        border: 1px solid #da3633;
-        color: #f85149;
+        background-color: #f8d7da;
+        color: #721c24;
+        border-color: #f5c6cb;
     }
-    
-    /* Progress Bar */
-    .stProgress > div > div > div > div {
-        background-color: #58a6ff;
-    }
-
 </style>
 """, unsafe_allow_html=True)
 
@@ -109,13 +83,92 @@ if 'score' not in st.session_state:
 if 'completed_missions' not in st.session_state:
     st.session_state.completed_missions = set()
 if 'user_name' not in st.session_state:
-    st.session_state.user_name = "Trainee"
+    st.session_state.user_name = "Data Connoisuer"
+if 'page_index' not in st.session_state:
+    st.session_state.page_index = 0
 
 # --- Constants ---
 TOTAL_MISSIONS = 5
 MAX_SCORE_PER_MISSION = 100
+PAGES = [
+    "🏠 Dashboard",
+    "📧 Mission 1: Phishing Defense",
+    "⚖️ Mission 2: Data Rights (NDPR)",
+    "🔑 Mission 3: Password Hygiene",
+    "🏢 Mission 4: Physical Security",
+    "🚨 Mission 5: Incident Response",
+    "🏆 Certification"
+]
 
-# --- Sidebar & Navigation ---
+# Map page index to mission ID for validation
+MISSION_MAP = {
+    1: "m1",
+    2: "m2",
+    3: "m3",
+    4: "m4",
+    5: "m5"
+}
+
+# --- Helper Functions ---
+def mark_complete(mission_id, points):
+    if mission_id not in st.session_state.completed_missions:
+        st.session_state.score += points
+        st.session_state.completed_missions.add(mission_id)
+        st.balloons()
+        st.success("✅ Correct! Moving to next mission...")
+        time.sleep(1.5)
+        # Auto-advance
+        if st.session_state.page_index < len(PAGES) - 1:
+            st.session_state.page_index += 1
+        st.rerun()
+
+def show_feedback(is_correct, explanation, mission_id, points=MAX_SCORE_PER_MISSION):
+    if is_correct:
+        # Auto-claim logic
+        mark_complete(mission_id, points)
+    else:
+        st.error(f"❌ Incorrect. {explanation}")
+
+def save_result(username, score):
+    file_exists = os.path.isfile('training_log.csv')
+    with open('training_log.csv', 'a', newline='') as f:
+        writer = csv.writer(f)
+        if not file_exists:
+            writer.writerow(['Timestamp', 'Username', 'Score', 'Completed'])
+        writer.writerow([datetime.now().strftime("%Y-%m-%d %H:%M:%S"), username, score, len(st.session_state.completed_missions) == TOTAL_MISSIONS])
+
+def nav_buttons():
+    st.markdown("---")
+    col1, col2, col3 = st.columns([1, 4, 1])
+    
+    # Previous Button
+    with col1:
+        if st.session_state.page_index > 0:
+            if st.button("⬅️ Previous"):
+                st.session_state.page_index -= 1
+                st.rerun()
+    
+    # Next Button (with Validation)
+    with col3:
+        if st.session_state.page_index < len(PAGES) - 1:
+            # Check if current page is a mission and if it is completed
+            current_mission_id = MISSION_MAP.get(st.session_state.page_index)
+            is_completed = True
+            if current_mission_id:
+                if current_mission_id not in st.session_state.completed_missions:
+                    is_completed = False
+            
+            if st.button("Next ➡️"):
+                if is_completed:
+                    st.session_state.page_index += 1
+                    st.rerun()
+                else:
+                    st.error("Please complete the mission first!")
+
+# --- Sidebar & Navigation Logic ---
+def update_index_from_radio():
+    st.session_state.page_index = PAGES.index(st.session_state.nav_selection)
+
 with st.sidebar:
     st.image("https://img.icons8.com/color/96/000000/security-checked--v1.png", width=80)
     st.title("🛡️ Fiducia Security")
@@ -130,43 +183,21 @@ with st.sidebar:
     
     st.markdown("---")
     
-    mission_selection = st.radio(
+    # Navigation Radio
+    st.radio(
         "Select Mission:",
-        [
-            "🏠 Dashboard",
-            "📧 Mission 1: Phishing Defense",
-            "⚖️ Mission 2: Data Rights (GDPR)",
-            "🔑 Mission 3: Password Hygiene",
-            "🏢 Mission 4: Physical Security",
-            "🚨 Mission 5: Incident Response",
-            "🏆 Certification"
-        ]
+        PAGES,
+        index=st.session_state.page_index,
+        key="nav_selection",
+        on_change=update_index_from_radio
     )
     
     st.markdown("---")
     if st.button("Reset Simulator"):
         st.session_state.score = 0
         st.session_state.completed_missions = set()
+        st.session_state.page_index = 0
         st.rerun()
-
-# --- Helper Functions ---
-def mark_complete(mission_id, points):
-    if mission_id not in st.session_state.completed_missions:
-        st.session_state.score += points
-        st.session_state.completed_missions.add(mission_id)
-        st.balloons()
-        time.sleep(1)
-        st.rerun()
-
-def show_feedback(is_correct, explanation, mission_id, points=MAX_SCORE_PER_MISSION):
-    if is_correct:
-        st.success(f"✅ Correct! {explanation}")
-        if mission_id not in st.session_state.completed_missions:
-            st.button("Claim Points & Finish Mission", on_click=mark_complete, args=(mission_id, points))
-        else:
-            st.info("Mission already completed.")
-    else:
-        st.error(f"❌ Incorrect. {explanation}")
 
 # --- Missions ---
 
@@ -189,13 +220,13 @@ def dashboard():
         st.session_state.user_name = name_input
         st.rerun()
 
-    st.info("👈 Select a mission from the sidebar to start.")
+    st.info("👈 Select a mission from the sidebar or click Next to start.")
 
 def mission_phishing():
     st.header("📧 Mission 1: Phishing Defense")
     st.markdown("You are checking your emails on a busy Monday morning. One email catches your eye.")
     
-    with st.container(border=True):
+    with st.container():
         st.markdown("""
         **From:** IT Support <admin@fiducla.com>  
         **Subject:** URGENT: Verify your account now
@@ -211,19 +242,24 @@ def mission_phishing():
         """)
     
     st.subheader("What is your immediate action?")
+    
+    # Use session state to persist choice if needed, but for now standard radio is fine
     choice = st.radio("Choose wisely:", 
                       ["Click the link to verify quickly.", 
                        "Reply to ask if it's real.", 
                        "Report to Security Team / Delete.",
                        "Forward to your personal email to check later."])
     
-    if st.button("Submit Decision"):
-        if choice == "Report to Security Team / Delete.":
-            show_feedback(True, "You noticed the spoofed domain 'fiducla.com' and the urgency tactics. Excellent work.", "m1")
-        elif choice == "Click the link to verify quickly.":
-            show_feedback(False, "You fell for the trap! The domain was 'fiducla.com' (typo) and the link was suspicious.", "m1")
-        else:
-            show_feedback(False, "Not the best course of action. Always report suspicious emails directly via the 'Report Phish' button.", "m1")
+    if "m1" in st.session_state.completed_missions:
+        st.success("✅ Mission Completed")
+    else:
+        if st.button("Submit Decision"):
+            if choice == "Report to Security Team / Delete.":
+                show_feedback(True, "You noticed the spoofed domain 'fiducla.com' and the urgency tactics. Excellent work.", "m1")
+            elif choice == "Click the link to verify quickly.":
+                show_feedback(False, "You fell for the trap! The domain was 'fiducla.com' (typo) and the link was suspicious.", "m1")
+            else:
+                show_feedback(False, "Not the best course of action. Always report suspicious emails directly via the 'Report Phish' button.", "m1")
 
 def mission_data_rights():
     st.header("⚖️ Mission 2: Data Rights (GDPR)")
@@ -236,15 +272,18 @@ def mission_data_rights():
     options = ["Marketing Email Subscription", "Customer Support Chat Logs", "Transaction History (Tax Invoices)", "Shipping Address"]
     selections = st.multiselect("Select items to delete:", options)
     
-    if st.button("Process Deletion"):
-        if not selections:
-            st.warning("You must select something.")
-        elif "Transaction History (Tax Invoices)" in selections:
-            show_feedback(False, "⚠️ Compliance Violation! We are legally required to keep Tax Invoices for 6+ years. You cannot delete them just because a customer asks.", "m2")
-        elif "Marketing Email Subscription" in selections and "Shipping Address" in selections and "Customer Support Chat Logs" in selections:
-             show_feedback(True, "Perfect balance. You deleted the personal data we don't need, but kept the legal records (which we would explain to the customer).", "m2")
-        else:
-             show_feedback(False, "You missed some deletable data or didn't select enough. Try to clear all non-essential data.", "m2")
+    if "m2" in st.session_state.completed_missions:
+        st.success("✅ Mission Completed")
+    else:
+        if st.button("Process Deletion"):
+            if not selections:
+                st.warning("You must select something.")
+            elif "Transaction History (Tax Invoices)" in selections:
+                show_feedback(False, "⚠️ Compliance Violation! We are legally required to keep Tax Invoices for 6+ years. You cannot delete them just because a customer asks.", "m2")
+            elif "Marketing Email Subscription" in selections and "Shipping Address" in selections and "Customer Support Chat Logs" in selections:
+                 show_feedback(True, "Perfect balance. You deleted the personal data we don't need, but kept the legal records (which we would explain to the customer).", "m2")
+            else:
+                 show_feedback(False, "You missed some deletable data or didn't select enough. Try to clear all non-essential data.", "m2")
 
 def mission_passwords():
     st.header("🔑 Mission 3: Password Hygiene")
@@ -275,11 +314,14 @@ def mission_passwords():
     else:
         feedback.append("Needs a special character (!@#$)")
 
-    if st.button("Set Password"):
-        if strength == 4:
-            show_feedback(True, "Strong password set! It's long and complex.", "m3")
-        else:
-            st.error(f"Weak Password: {', '.join(feedback)}")
+    if "m3" in st.session_state.completed_missions:
+        st.success("✅ Mission Completed")
+    else:
+        if st.button("Set Password"):
+            if strength == 4:
+                show_feedback(True, "Strong password set! It's long and complex.", "m3")
+            else:
+                st.error(f"Weak Password: {', '.join(feedback)}")
 
 def mission_physical():
     st.header("🏢 Mission 4: Physical Security")
@@ -303,13 +345,16 @@ def mission_physical():
                            "Lock computer AND put confidential papers in a locked drawer.",
                            "Turn off the monitor."])
     
-    if st.button("Go to Lunch"):
-        if action == "Lock computer AND put confidential papers in a locked drawer.":
-            show_feedback(True, "Excellent 'Clean Desk' policy adherence! You secured both digital and physical assets.", "m4")
-        elif action == "Lock computer (Win+L).":
-            show_feedback(False, "Good start, but you left confidential papers exposed on the desk!", "m4")
-        else:
-            show_feedback(False, "Major security risk! Never leave your workstation unlocked or sensitive papers out.", "m4")
+    if "m4" in st.session_state.completed_missions:
+        st.success("✅ Mission Completed")
+    else:
+        if st.button("Go to Lunch"):
+            if action == "Lock computer AND put confidential papers in a locked drawer.":
+                show_feedback(True, "Excellent 'Clean Desk' policy adherence! You secured both digital and physical assets.", "m4")
+            elif action == "Lock computer (Win+L).":
+                show_feedback(False, "Good start, but you left confidential papers exposed on the desk!", "m4")
+            else:
+                show_feedback(False, "Major security risk! Never leave your workstation unlocked or sensitive papers out.", "m4")
 
 def mission_incident():
     st.header("🚨 Mission 5: Incident Response")
@@ -323,11 +368,14 @@ def mission_incident():
                        "Immediately report it to the Data Protection Officer (DPO) / IT Security.",
                        "Ignore it, maybe no one will notice."])
     
-    if st.button("Execute Protocol"):
-        if action == "Immediately report it to the Data Protection Officer (DPO) / IT Security.":
-            show_feedback(True, "Correct. Speed is key. The DPO needs to assess if this is a reportable breach to the ICO.", "m5")
-        else:
-            show_feedback(False, "Wrong. Hiding it or asking the recipient (who you don't know) is risky. Always report internally immediately.", "m5")
+    if "m5" in st.session_state.completed_missions:
+        st.success("✅ Mission Completed")
+    else:
+        if st.button("Execute Protocol"):
+            if action == "Immediately report it to the Data Protection Officer (DPO) / IT Security.":
+                show_feedback(True, "Correct. Speed is key. The DPO needs to assess if this is a reportable breach to the ICO.", "m5")
+            else:
+                show_feedback(False, "Wrong. Hiding it or asking the recipient (who you don't know) is risky. Always report internally immediately.", "m5")
 
 def certification():
     st.title("🏆 Course Completion")
@@ -343,10 +391,14 @@ def certification():
         You are now a certified Data Guardian! 🛡️
         """)
         
+        # Save Result
+        save_result(st.session_state.user_name, st.session_state.score)
+        st.info("✅ Your result has been logged.")
+        
         # Certificate Mockup
         st.markdown("---")
         st.markdown(f"""
-        <div style="padding: 20px; border: 10px solid #FFD700; text-align: center; background-color: #f9f9f9; color: #333;">
+        <div style="padding: 20px; border: 10px solid #FFD700; text-align: center; background-color: #ffffff; color: #333; font-family: 'Poppins', sans-serif;">
             <h1>Certificate of Completion</h1>
             <p>This certifies that</p>
             <h2>{st.session_state.user_name}</h2>
@@ -360,17 +412,23 @@ def certification():
         st.write("Please complete all missions to unlock your certificate.")
 
 # --- Main Routing ---
-if mission_selection == "🏠 Dashboard":
+# Get current page from state
+current_page_name = PAGES[st.session_state.page_index]
+
+if current_page_name == "🏠 Dashboard":
     dashboard()
-elif mission_selection == "📧 Mission 1: Phishing Defense":
+elif current_page_name == "📧 Mission 1: Phishing Defense":
     mission_phishing()
-elif mission_selection == "⚖️ Mission 2: Data Rights (GDPR)":
+elif current_page_name == "⚖️ Mission 2: Data Rights (GDPR)":
     mission_data_rights()
-elif mission_selection == "🔑 Mission 3: Password Hygiene":
+elif current_page_name == "🔑 Mission 3: Password Hygiene":
     mission_passwords()
-elif mission_selection == "🏢 Mission 4: Physical Security":
+elif current_page_name == "🏢 Mission 4: Physical Security":
     mission_physical()
-elif mission_selection == "🚨 Mission 5: Incident Response":
+elif current_page_name == "🚨 Mission 5: Incident Response":
     mission_incident()
-elif mission_selection == "🏆 Certification":
+elif current_page_name == "🏆 Certification":
     certification()
+
+# Render Navigation Buttons
+nav_buttons()
