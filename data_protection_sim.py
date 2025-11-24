@@ -253,7 +253,7 @@ def dashboard():
     st.markdown(f"""
     Welcome to the **Fiducia Data Protection Simulator**. 
     
-    As a key player in **IT Supply Chain Financing**, we handle sensitive data: invoices, vendor KYC, and transaction ledgers. 
+    As a key player in **IT Supply Chain Financing**, we handle sensitive data: invoices, vendor KYC, and Customer Information. 
     Your vigilance is our first line of defense.
     
     ### 🎯 Your Objectives
@@ -277,25 +277,25 @@ def mission_phishing():
     
     with st.container():
         st.markdown("""
-        **From:** Accounts Payable <billing@logistics-partner-support.com>  
+        **From:** Accounts Payable <operations@myfiduc1a.com>  
         **Subject:** URGENT: Invoice #99281 Blocked - Action Required
         
         Hi Team,
         
         Your payment for Invoice #99281 has been blocked due to a KYC update error. 
-        Please download the attached 'Secure Payment Gateway' tool to update your banking credentials immediately, or the shipment will be delayed.
+        Please download the attached 'Secure Payment Gateway' tool to update your banking credentials immediately, or the payment will be delayed.
         
-        [Download Secure Tool](http://logistics-partner-support.com/secure-tool.exe)
+        [Download Secure Tool](http://myfiduc1a.com/secure-tool.exe)
         
         Regards,  
-        Billing Dept
+        Operations Dept
         """)
     
     st.subheader("Analyze the email. What is the primary red flag?")
     
     choice = st.radio("Select the most critical indicator:", 
                       ["The tone is urgent.", 
-                       "The sender domain 'logistics-partner-support.com' is likely a spoof (lookalike domain).", 
+                       "The sender domain 'myfiduc1a.com' is likely a spoof (lookalike domain).", 
                        "The invoice number is unfamiliar.",
                        "It asks for banking credentials."])
     
@@ -303,15 +303,15 @@ def mission_phishing():
         st.info("Mission Completed")
     else:
         if st.button("Submit Analysis"):
-            if choice == "The sender domain 'logistics-partner-support.com' is likely a spoof (lookalike domain).":
+            if choice == "The sender domain 'myfiduc1a.com' is likely a spoof (lookalike domain).":
                 show_feedback(True, "Correct. Supply chain attacks often use 'typosquatting' or plausible-looking domains to trick you into installing malware.", "m1")
             else:
-                show_feedback(False, "Incorrect. While other factors are suspicious, the **domain spoofing** is the technical smoking gun here. The official domain would be 'logistics-partner.com'.", "m1")
+                show_feedback(False, "Incorrect. While other factors are suspicious, the **domain spoofing** is the technical smoking gun here. The official domain would be 'myfiducia.com'.", "m1")
 
 def mission_data_rights():
     st.header("⚖️ Mission 2: Data Rights (NDPR)")
-    st.markdown("A former director of a vendor company, **Jane Doe**, submits a request to delete her personal data.")
-    st.info("Context: Jane was the signatory for a financing deal 3 years ago. We hold her passport copy and signature for AML/KYC purposes.")
+    st.markdown("A former director of a vendor company, **Aduke Okon Tambuwal**, submits a request to delete her personal data.")
+    st.info("Context: Aduke Okon Tambuwal was the signatory for a financing deal 3 years ago. We hold her passport copy and signature for AML/KYC purposes.")
     
     st.subheader("How do you respond to her Deletion Request?")
     
@@ -378,7 +378,7 @@ def mission_physical():
 
 def mission_data_leak():
     st.header("🚨 Mission 5: Data Leakage")
-    st.markdown("You intended to email a 'Vendor Credit Limit' spreadsheet to 'internal-finance@fiducia.com', but autocomplete sent it to 'ian@finance-competitor.com'.")
+    st.markdown("You intended to email a 'Vendor Credit Limit' spreadsheet to 'finance@fiducia.com', but autocomplete sent it to 'ian@finance-vendorcredit.com'.")
     
     st.subheader("Immediate Response Protocol:")
     
@@ -399,7 +399,7 @@ def mission_data_leak():
 
 def mission_ransomware():
     st.header("💀 Mission 6: Ransomware Attack")
-    st.markdown("The 'Transaction Ledger' server is encrypted. A ransom note demands 10 BTC. Backups are 12 hours old (some data loss will occur).")
+    st.markdown("The 'Transaction Database' server is encrypted. A ransom note demands 10 BTC. Backups are 12 hours old (some data loss will occur).")
     
     st.subheader("Strategic Decision:")
     
@@ -420,7 +420,7 @@ def mission_ransomware():
 
 def mission_ceo_fraud():
     st.header("🎭 Mission 7: CEO Fraud (BEC)")
-    st.markdown("You receive a WhatsApp from the CEO: 'I'm at a conference. We need to change the settlement account for the 'Project Alpha' vendor immediately to this new offshore account. Do it now.'")
+    st.markdown("You receive a WhatsApp from the CEO: 'I'm at a conference. We need to change the settlement account for the 'Project Alpha' vendor immediately to this new account. Do it now.'")
     
     st.subheader("Action:")
     
@@ -441,7 +441,7 @@ def mission_ceo_fraud():
 
 def mission_shadow_it():
     st.header("☁️ Mission 8: Shadow IT")
-    st.markdown("A marketing manager is using a free online tool, 'PDF-Merger-Online', to combine sensitive Loan Agreements for easier storage.")
+    st.markdown("A marketing manager is using a free online tool, 'PDF-Merger-Online', to combine sensitive Invoice Agreements for easier storage.")
     
     st.subheader("Why is this a risk?")
     
@@ -510,7 +510,7 @@ def certification():
         st.balloons()
         st.success(f"CONGRATULATIONS, {st.session_state.user_name}!")
         st.markdown(f"""
-        You have completed the **Fiducia IT Supply Chain Security Training**.
+        You have completed the **Data Protection & Security Awareness Training**.
         
         **Final Score:** {st.session_state.score} / {TOTAL_MISSIONS * MAX_SCORE_PER_MISSION}
         
