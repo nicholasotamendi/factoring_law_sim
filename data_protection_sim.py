@@ -122,18 +122,24 @@ MISSION_MAP = {
 }
 
 # --- Helper Functions ---
-def mark_complete(mission_id, points):
+def mark_complete(mission_id, points, message=None):
     if mission_id not in st.session_state.completed_missions:
         st.session_state.score += points
         st.session_state.completed_missions.add(mission_id)
         
         if points > 0:
             st.balloons()
-            st.success("✅ Correct! Moving to next mission...")
+            if message:
+                st.success(message)
+            else:
+                st.success("✅ Correct! Moving to next mission...")
         else:
-            st.error("❌ Incorrect. Moving to next mission...")
+            if message:
+                st.error(message)
+            else:
+                st.error("❌ Incorrect. Moving to next mission...")
             
-        time.sleep(2.5) # Pause to read feedback
+        time.sleep(7) # Pause to read feedback
         
         # Auto-advance
         if st.session_state.page_index < len(PAGES) - 1:
@@ -142,17 +148,11 @@ def mark_complete(mission_id, points):
 
 def show_feedback(is_correct, explanation, mission_id, points=MAX_SCORE_PER_MISSION):
     if is_correct:
-        mark_complete(mission_id, points)
+        msg = f"✅ Correct! {explanation}"
+        mark_complete(mission_id, points, message=msg)
     else:
-        # Show error message first, then auto-fail
-        st.error(f"❌ Incorrect. {explanation}")
-        # We need a way to trigger the move after showing the error.
-        # Since st.error renders immediately, we can sleep then call mark_complete with 0.
-        # However, mark_complete also shows a message. Let's adjust mark_complete to handle the "already shown" message or just rely on it.
-        # To keep it simple:
-        with st.spinner("Processing result..."):
-            time.sleep(3)
-        mark_complete(mission_id, 0)
+        msg = f"❌ Incorrect. {explanation}"
+        mark_complete(mission_id, 0, message=msg)
 
 def save_result(username, score):
     file_exists = os.path.isfile('training_log.csv')
@@ -554,6 +554,12 @@ def certification():
             
             Please **Reset the Simulator** from the sidebar and try again to demonstrate your mastery of the material.
             """)
+            
+            if st.button("🔄 Reset Simulator & Try Again"):
+                st.session_state.score = 0
+                st.session_state.completed_missions = set()
+                st.session_state.page_index = 0
+                st.rerun()
             
     else:
         st.warning(f"You have completed {len(st.session_state.completed_missions)} / {TOTAL_MISSIONS} missions.")
