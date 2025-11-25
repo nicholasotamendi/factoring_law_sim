@@ -142,6 +142,22 @@ st.markdown("""
         color: #721c24;
         border-color: #f5c6cb;
     }
+    
+    /* Dashboard Styling */
+    .important-instruction {
+        color: #d9534f; /* Red */
+        font-weight: 700;
+        font-size: 1.1rem;
+        margin-bottom: 10px;
+    }
+    .input-container {
+        border: 2px solid #1560bd; /* Fiducia Blue */
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 10px;
+        margin-top: 10px;
+        margin-bottom: 20px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -151,7 +167,9 @@ if 'score' not in st.session_state:
 if 'completed_missions' not in st.session_state:
     st.session_state.completed_missions = set()
 if 'user_name' not in st.session_state:
-    st.session_state.user_name = "Trainee"
+    st.session_state.user_name = ""
+if 'user_email' not in st.session_state:
+    st.session_state.user_email = ""
 if 'page_index' not in st.session_state:
     st.session_state.page_index = 0
 if 'confirm_reset' not in st.session_state:
@@ -160,6 +178,8 @@ if 'confirm_reset_cert' not in st.session_state:
     st.session_state.confirm_reset_cert = False
 if 'result_saved' not in st.session_state:
     st.session_state.result_saved = False
+if 'start_time' not in st.session_state:
+    st.session_state.start_time = None
 
 # --- Constants ---
 TOTAL_MISSIONS = 10
@@ -227,13 +247,31 @@ def show_feedback(is_correct, explanation, mission_id, points=MAX_SCORE_PER_MISS
         msg = f"❌ Incorrect. {explanation}"
         mark_complete(mission_id, 0, message=msg)
 
-def save_result(username, score):
+def save_result(username, email, score, duration_seconds):
     file_exists = os.path.isfile('training_log.csv')
+    
+    # Check for schema migration if file exists
+    if file_exists:
+        try:
+            df = pd.read_csv('training_log.csv')
+            changed = False
+            if 'DurationSeconds' not in df.columns:
+                df['DurationSeconds'] = 999999 # Default for old records
+                changed = True
+            if 'Email' not in df.columns:
+                df['Email'] = 'N/A'
+                changed = True
+            
+            if changed:
+                df.to_csv('training_log.csv', index=False)
+        except Exception:
+            pass # If empty or error, just overwrite/append normally
+
     with open('training_log.csv', 'a', newline='') as f:
         writer = csv.writer(f)
         if not file_exists:
-            writer.writerow(['Timestamp', 'Username', 'Score', 'Completed'])
-        writer.writerow([datetime.now().strftime("%Y-%m-%d %H:%M:%S"), username, score, len(st.session_state.completed_missions) == TOTAL_MISSIONS])
+            writer.writerow(['Timestamp', 'Username', 'Email', 'Score', 'Completed', 'DurationSeconds'])
+        writer.writerow([datetime.now().strftime("%Y-%m-%d %H:%M:%S"), username, email, score, len(st.session_state.completed_missions) == TOTAL_MISSIONS, duration_seconds])
 
 def create_pdf(username, score):
     pdf = FPDF()
@@ -346,19 +384,36 @@ def dashboard():
     2. **Warning:** Incorrect answers will result in **0 points** and you cannot retry.
     3. Achieve a score of at least **80%** to earn your **Certificate**.
     
-    Enter your name below to begin:
+    
+    Enter your details below to begin:
     """)
     
-    name_input = st.text_input("Enter your name", value=st.session_state.user_name)
+    st.markdown('<p class="important-instruction">⚠️ Please enter your Name and Official Email (@myfiducia.com) to start the simulator.</p>', unsafe_allow_html=True)
+    
+    st.markdown('<div class="input-container">', unsafe_allow_html=True)
+    col1, col2 = st.columns(2)
+    with col1:
+        name_input = st.text_input("Full Name", value=st.session_state.user_name, placeholder="e.g. Jane Doe")
+    with col2:
+        email_input = st.text_input("Official Email", value=st.session_state.user_email, placeholder="e.g. jane.doe@myfiducia.com")
+    st.markdown('</div>', unsafe_allow_html=True)
     
     if st.button("Start Training"):
-        if name_input.strip():
+        # Validation
+        if not name_input.strip():
+            st.error("❌ Please enter your name.")
+        elif not email_input.strip():
+            st.error("❌ Please enter your email.")
+        elif not email_input.strip().endswith("@myfiducia.com"):
+            st.error("❌ Invalid Email. You must use your official '@myfiducia.com' email address.")
+        else:
             st.session_state.user_name = name_input.strip()
+            st.session_state.user_email = email_input.strip()
+            # Start Timer
+            st.session_state.start_time = datetime.now()
             # Move to first mission
             st.session_state.page_index = 1
             st.rerun()
-        else:
-            st.error("Please enter a valid name.")
 
     st.info("👈 Select a mission from the sidebar or click Next to start.")
 
@@ -609,6 +664,16 @@ def certification():
             # --- SUCCESS STATE ---
             st.balloons()
             
+            # Calculate Duration
+            duration_seconds = 0
+            if st.session_state.start_time:
+                duration_seconds = (datetime.now() - st.session_state.start_time).total_seconds()
+            
+            # Format duration for display
+            minutes = int(duration_seconds // 60)
+            seconds = int(duration_seconds % 60)
+            time_str = f"{minutes}m {seconds}s"
+
             # 1. Visual Certificate
             st.markdown(f"""
             <div class="certificate-container">
@@ -619,16 +684,17 @@ def certification():
                 <div class="cert-body"><b>Fiducia Data Protection Training</b></div>
                 <div class="cert-footer">
                     Date: {datetime.now().strftime('%d %B %Y')} <br>
-                    Score: {st.session_state.score} / {max_possible_score}
+                    Score: {st.session_state.score} / {max_possible_score} <br>
+                    Time: {time_str}
                 </div>
             </div>
             """, unsafe_allow_html=True)
             
-            st.success(f"Congratulations! You have passed with a score of {st.session_state.score} / {max_possible_score}.")
+            st.success(f"Congratulations! You have passed with a score of {st.session_state.score} / {max_possible_score} in {time_str}.")
             
             # 2. Save Result (if not already saved this session/run)
             if not st.session_state.result_saved:
-                save_result(st.session_state.user_name, st.session_state.score)
+                save_result(st.session_state.user_name, st.session_state.user_email, st.session_state.score, duration_seconds)
                 st.session_state.result_saved = True
                 # Optional: Show a toast or small message
                 # st.toast("Result saved successfully!")
@@ -680,14 +746,29 @@ def certification():
             try:
                 df = pd.read_csv('training_log.csv')
                 if not df.empty:
-                    # Sort by Score (desc) and Timestamp (desc)
-                    df = df.sort_values(by=['Score', 'Timestamp'], ascending=[False, False])
+                    # Ensure DurationSeconds exists (for backward compatibility if not saved yet)
+                    if 'DurationSeconds' not in df.columns:
+                        df['DurationSeconds'] = 999999
+                    
+                    # Sort by Score (desc) and DurationSeconds (asc)
+                    df = df.sort_values(by=['Score', 'DurationSeconds'], ascending=[False, True])
+                    
+                    # Format Duration
+                    def format_duration(seconds):
+                        if pd.isna(seconds) or seconds == 999999:
+                            return "N/A"
+                        m = int(seconds // 60)
+                        s = int(seconds % 60)
+                        return f"{m}m {s}s"
+                    
+                    df['Time'] = df['DurationSeconds'].apply(format_duration)
+                    
                     # Reset index
                     df.reset_index(drop=True, inplace=True)
                     df.index += 1
                     
                     st.dataframe(
-                        df[['Username', 'Score', 'Timestamp']], 
+                        df[['Username', 'Score', 'Time', 'Timestamp']], 
                         use_container_width=True,
                         height=300
                     )
@@ -706,15 +787,29 @@ def leaderboard():
         try:
             df = pd.read_csv('training_log.csv')
             if not df.empty:
-                # Sort by Score (desc) and Timestamp (desc)
-                df = df.sort_values(by=['Score', 'Timestamp'], ascending=[False, False])
+                # Ensure DurationSeconds exists
+                if 'DurationSeconds' not in df.columns:
+                    df['DurationSeconds'] = 999999
+                
+                # Sort by Score (desc) and DurationSeconds (asc)
+                df = df.sort_values(by=['Score', 'DurationSeconds'], ascending=[False, True])
+                
+                # Format Duration
+                def format_duration(seconds):
+                    if pd.isna(seconds) or seconds == 999999:
+                        return "N/A"
+                    m = int(seconds // 60)
+                    s = int(seconds % 60)
+                    return f"{m}m {s}s"
+                
+                df['Time'] = df['DurationSeconds'].apply(format_duration)
                 
                 # Reset index to start at 1
                 df.reset_index(drop=True, inplace=True)
                 df.index += 1
                 
                 st.dataframe(
-                    df[['Username', 'Score', 'Timestamp']], 
+                    df[['Username', 'Score', 'Time', 'Timestamp']], 
                     use_container_width=True,
                     height=500
                 )

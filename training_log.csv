@@ -1,16 +1,17 @@
-Timestamp,Username,Score,Completed
-2025-11-21 15:25:42,Tester lomo latile,500,True
-2025-11-21 15:27:15,Tester lomo latile,500,True
-2025-11-21 15:27:29,Tester lomo latile,500,True
-2025-11-21 15:50:26,Nicholas Tester,800,True
-2025-11-21 15:50:47,Nicholas Tester,800,True
-2025-11-21 16:13:29,Better Tester,800,True
-2025-11-24 12:22:32,Ajagbe,1000,True
-2025-11-24 17:16:00,Ajagbe,1000,True
-2025-11-24 17:16:11,Ajagbe,1000,True
-2025-11-24 17:16:27,Ajagbe,1000,True
-2025-11-24 17:16:29,Ajagbe,1000,True
-2025-11-24 18:09:16,Test,700,True
-2025-11-24 18:20:58,Taskmaster,1000,True
-2025-11-24 18:42:09,Tucheliban,1000,True
-2025-11-24 18:49:25,Trainee,1000,True
+Timestamp,Username,Score,Completed,DurationSeconds
+2025-11-21 15:25:42,Tester lomo latile,500,True,999999
+2025-11-21 15:27:15,Tester lomo latile,500,True,999999
+2025-11-21 15:27:29,Tester lomo latile,500,True,999999
+2025-11-21 15:50:26,Nicholas Tester,800,True,999999
+2025-11-21 15:50:47,Nicholas Tester,800,True,999999
+2025-11-21 16:13:29,Better Tester,800,True,999999
+2025-11-24 12:22:32,Ajagbe,1000,True,999999
+2025-11-24 17:16:00,Ajagbe,1000,True,999999
+2025-11-24 17:16:11,Ajagbe,1000,True,999999
+2025-11-24 17:16:27,Ajagbe,1000,True,999999
+2025-11-24 17:16:29,Ajagbe,1000,True,999999
+2025-11-24 18:09:16,Test,700,True,999999
+2025-11-24 18:20:58,Taskmaster,1000,True,999999
+2025-11-24 18:42:09,Tucheliban,1000,True,999999
+2025-11-24 18:49:25,Trainee,1000,True,999999
+2025-11-24 18:59:31,Juniper Berry,1000,True,77.969318
