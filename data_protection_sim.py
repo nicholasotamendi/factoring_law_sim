@@ -425,17 +425,23 @@ def dashboard():
 
 def mission_phishing():
     st.header("📧 Mission 1: Supply Chain Phishing")
-    st.markdown("You receive an email from a known logistics partner regarding a 'Blocked Invoice Payment'.")
+    st.markdown("""
+    You're reviewing your morning inbox when a message from a *supposed* logistics partner regarding a 'Blocked Invoice Payment' catches your attention.
+
+    It looks routine enough, but something doesn't feel right. 
+
+    Below is the email exactly as it was received.
+    """)
     
     with st.container():
         st.markdown("""
         **From:** Accounts Payable <operations@myfiduc1a.com>  
-        **Subject:** URGENT: Invoice #99281 Blocked - Action Required
+        **Subject:** ⚠️ URGENT: Invoice #99281 Blocked - Action Required
         
         Hi Team,
         
         Your payment for Invoice #99281 has been blocked due to a KYC update error. 
-        Please download the attached 'Secure Payment Gateway' tool to update your banking credentials immediately, or the payment will be delayed.
+        Please download the attached **'Secure Payment Gateway'** tool to update your banking credentials immediately, or the payment will be delayed.
         
         [Download Secure Tool](http://myfiduc1a.com/secure-tool.exe)
         
@@ -443,7 +449,8 @@ def mission_phishing():
         Operations Dept
         """)
     
-    st.subheader("Analyze the email. What is the primary red flag?")
+    st.subheader("🕵️ Your Task: Identify the biggest red flag")
+    st.markdown("Multiple things look suspicious — but one of them is the **most critical indicator** of phishing.")
     
     choice = st.radio("Select the most critical indicator:", 
                       ["The tone is urgent.", 
@@ -462,22 +469,37 @@ def mission_phishing():
 
 def mission_data_rights():
     st.header("⚖️ Mission 2: Data Rights (NDPR)")
-    st.markdown("A former director of a vendor company, **Aduke Okon Tambuwal**, submits a request to delete her personal data.")
-    st.info("Context: Aduke Okon Tambuwal was the signatory for a financing deal 3 years ago. We hold her passport copy and signature for AML/KYC purposes.")
+    st.markdown("""
+    You receive an official Data Subject Request from **Aduke Okon Tambuwal**,  
+    a former director of a vendor your organization worked with three years ago.
+
+    She is requesting **complete deletion** of her personal data from your systems.
+    """)
+    st.info("""
+    Background Briefing:
+    - Aduke was the authorized signatory for a financing deal.
+    - As part of AML/KYC checks, your records include her **passport copy** and **signature**.
+    - These records form part of the mandatory compliance archive.
+    """)
     
-    st.subheader("How do you respond to her Deletion Request?")
+    st.subheader("🧭 Your Task: Decide the Correct Response")
+    st.markdown("""
+    Multiple factors are at play:
+    - Legal obligations (like Anti-Money Laundering laws) override the Right to Erasure under NDPR for specific transaction records.
+    - The passport/signature are critical for AML/KYC compliance.
+    """)
     
     choice = st.radio("Decision:", 
                       ["Delete everything immediately to comply with NDPR.", 
                        "Delete her email address but keep the passport/signature.", 
-                       "Refuse to delete the passport/signature due to AML/KYC legal obligations.",
+                       "Explain that the passport/signature must be retained due to AML/KYC legal obligations.",
                        "Ask her to pay a processing fee first."])
     
     if "m2" in st.session_state.completed_missions:
         st.info("Mission Completed")
     else:
         if st.button("Submit Decision"):
-            if choice == "Refuse to delete the passport/signature due to AML/KYC legal obligations.":
+            if choice == "Explain that the passport/signature must be retained due to AML/KYC legal obligations.":
                 show_feedback(True, "Correct. Legal obligations (like Anti-Money Laundering laws) override the Right to Erasure under NDPR for specific transaction records.", "m2")
             elif choice == "Delete her email address but keep the passport/signature.":
                 show_feedback(False, "Partially correct, but you must explicitly inform her *why* you are retaining the AML data. The best answer focuses on the refusal justification.", "m2")
@@ -486,9 +508,26 @@ def mission_data_rights():
 
 def mission_access_control():
     st.header("🔐 Mission 3: Access Control")
-    st.markdown("A partner developer needs temporary access to our 'Live Transaction Database' to debug a critical API integration failure preventing payments.")
+    st.markdown("""
+    A critical alert just came in.
+    The Digital Signature API is failing in production, and transactions are stuck in a **DOA_Sign** state.
+    A partner developer urgently requests access to the **Live Transaction Database** to debug the issue.
+
+    Time is ticking. Every minute of downtime costs transactions and erodes trust
+    """)
+
+    st.info("""
+    Incident Context:
+    - The developer is external (not Fiducia staff).
+    - The failure affects real customers and live payment flows.
+    - The database contains sensitive personal and financial data governed by NDPR and AML regulations.
+    """)
     
-    st.subheader("What is the secure way to grant access?")
+    st.subheader("🧭 Your Task: Choose the Safest Access Method")
+    st.markdown("""
+    You must balance **speed**, **security**, and **regulatory compliance**.  
+    Giving the wrong kind of access could expose live PII, violate NDPR, or compromise the entire platform.
+    """)
     
     choice = st.radio("Method:", 
                       ["Share the 'admin' database password via a self-destructing note.", 
@@ -509,8 +548,21 @@ def mission_access_control():
 
 def mission_physical():
     st.header("🏢 Mission 4: Physical Security")
-    st.markdown("You are working late on a printed 'Credit Risk Assessment' for a high-profile client. You need to use the restroom.")
+    st.markdown("""
+    It is late in the evening at the office.  
+    You are finalizing a **confidential Credit Risk Assessment** for a high-profile client — the kind of document that contains sensitive financial data and internal scoring models.
+
+    Just as you get to a crucial section, nature calls.  
+    You need to step away from your desk for a few minutes.
+    """)
     
+    st.info("""
+    Context:
+    - The building is mostly empty at this hour.
+    - Cleaning staff and security personnel still have access.
+    - Printed documents fall under the Clean Desk & NDPR Physical Safeguard rules.
+    """)
+
     st.subheader("What do you do with the document?")
     
     choice = st.radio("Action:", 
@@ -528,11 +580,34 @@ def mission_physical():
             else:
                 show_feedback(False, "Insufficient. Locking the door isn't foolproof, and turning it over is useless. Secure it properly.", "m4")
 
+
 def mission_data_leak():
     st.header("🚨 Mission 5: Data Leakage")
-    st.markdown("You intended to email a 'Vendor Credit Limit' spreadsheet to 'finance@fiducia.com', but autocomplete sent it to 'ian@finance-vendorcredit.com'.")
+    st.markdown("""
+    You are wrapping up a busy day and send out the **Vendor Credit Limit** spreadsheet — a file that contains  
+    sensitive financial exposure details and internal scoring information.
+
+    Moments after clicking **Send**, your heart drops.
+
+    You realize Outlook's autocomplete sent it to the wrong address:
+    **ian@finance-vendorcredit.com** — not the official finance email.
+
+    This domain is completely unknown.  
+    The file has already left Fiducia's ecosystem.
+    """)
+
+    st.info("""
+    Quick Reality Check:
+    - Outlook “Recall” almost never works outside your organization.
+    - You have *no control* over the unintended recipient.
+    - This qualifies as a potential data breach under NDPR.
+    """)
     
     st.subheader("Immediate Response Protocol:")
+    st.markdown("""
+    The next 60 seconds matter.  
+    Your immediate decision determines whether this becomes a reportable breach.
+    """)
     
     choice = st.radio("Action:", 
                       ["Recall the message in Outlook.", 
@@ -551,7 +626,15 @@ def mission_data_leak():
 
 def mission_ransomware():
     st.header("💀 Mission 6: Ransomware Attack")
-    st.markdown("The 'Transaction Database' server is encrypted. A ransom note demands 10 BTC. Backups are 12 hours old (some data loss will occur).")
+    st.markdown("""
+    The office goes silent.  
+    Alerts are flashing on the monitoring dashboard.  
+    The **'Transaction Database'** has been fully encrypted—and a digital ransom note appears demanding **10 BTC**.
+
+    Your IT team is gathering around you. Backups exist… but the latest ones are **12 hours old**.
+
+    It's time to act.    
+    """)
     
     st.subheader("Strategic Decision:")
     
@@ -572,9 +655,19 @@ def mission_ransomware():
 
 def mission_ceo_fraud():
     st.header("🎭 Mission 7: CEO Fraud (BEC)")
-    st.markdown("You receive a WhatsApp from the CEO: 'I'm at a conference. We need to change the settlement account for the 'Project Alpha' vendor immediately to this new account. Do it now.'")
+    st.markdown("""
+    Your phone buzzes.  
+    A WhatsApp message pops up from the CEO — or so it seems.
+
+    **“I am at a conference. Urgent. Change the settlement account for *Project Alpha* to this new account.  
+    Do it now.”**
+
+    The pressure spikes.  
+    Finance team waits.  
+    The request looks legit… but something feels off.
+    """)
     
-    st.subheader("Action:")
+    st.subheader("Your Move - How do you respond?")
     
     choice = st.radio("Response:", 
                       ["Process the change, it's the CEO.", 
@@ -582,18 +675,46 @@ def mission_ceo_fraud():
                        "Reply on WhatsApp asking for a confirmation code.",
                        "Wait until they return."])
     
+    with st.expander("💡 Hint: These attacks impersonate executives under pressure."):
+        st.markdown("Always step *outside* the suspicious channel. Verification must be out-of-band.")
+    
     if "m7" in st.session_state.completed_missions:
         st.info("Mission Completed")
     else:
         if st.button("Send Response"):
             if choice == "Call the CEO on their official number to verify.":
-                show_feedback(True, "Correct. Out-of-band verification is mandatory for payment instruction changes. WhatsApp is easily impersonated.", "m7")
+                show_feedback(True, 
+                "Correct. Out-of-band verification is mandatory for payment instruction changes. WhatsApp is easily impersonated."
+                "WhatsApp (and even email) can be spoofed. Out-of-band confirmation prevents BEC fraud."
+                , "m7")
             else:
-                show_feedback(False, "Incorrect. Never process financial changes based on unverified messages, regardless of the sender's apparent rank.", "m7")
+                show_feedback(False, 
+                    "Not safe. Fraudsters rely on urgency and authority pressure. "
+                    "Incorrect. Never process financial changes based on unverified messages, regardless of the sender's apparent rank.", 
+                    "m7")
 
 def mission_shadow_it():
     st.header("☁️ Mission 8: Shadow IT")
-    st.markdown("A marketing manager is using a free online tool, 'PDF-Merger-Online', to combine sensitive Invoice Agreements for easier storage.")
+    st.markdown("""
+    The Marketing Manager walks over to your desk with a smile.
+
+    **“Hey! I found this amazing free website called *PDF-Merger-Online*.  
+    I have been uploading our Invoice Agreements to merge them. Saves me *so* much time!”**
+
+    You freeze.  
+    Those agreements contain vendor identities, banking details, contract terms…  
+
+    Before responding, you decide to quickly assess the risk.
+    """)
+
+    # Interactive evidence panel
+    with st.expander("🔍 View Clue: What happens when files are uploaded to free PDF tools?"):
+        st.markdown("""
+        - Files are often **stored on third-party servers**.
+        - Many tools **process documents outside your region**.
+        - Some sell metadata for **advertising or analytics**.
+        - No DPA → No control → No accountability.
+        """)
     
     st.subheader("Why is this a risk?")
     
@@ -602,6 +723,16 @@ def mission_shadow_it():
                        "We don't have a contract with this vendor, and data is leaving our control.", 
                        "The tool might be slow.",
                        "It costs money."])
+
+     # Add an interactive “gut check” moment
+    st.markdown("""
+    ---
+    **🧩 Quick Self-Check:**  
+    If a tool is *free*, how does it usually make money?
+
+    *(Think before submitting…)*  
+    ---
+    """)
     
     if "m8" in st.session_state.completed_missions:
         st.info("Mission Completed")
@@ -614,7 +745,25 @@ def mission_shadow_it():
 
 def mission_secure_dev():
     st.header("💻 Mission 9: Secure Development")
-    st.markdown("You are reviewing a script written by a junior dev to automate 'Daily Reconciliation'. You see this line:\n\n`aws_secret_key = 'AKIA...12345'`")
+    st.markdown("""
+    You are performing a **code review** for a junior developer's script that automates *Daily Reconciliation*.  
+    While scanning the code, you notice this line:
+
+    ```python
+    aws_secret_key = 'AKIA...12345'
+    ```
+
+    You pause. Something doesn't feel right.  
+    This code is destined for the main repository, potentially accessible to multiple teams.
+    """)
+
+    # Interactive hint panel
+    with st.expander("🔍 Hint: Think like an attacker"):
+        st.markdown("""
+        - Could this key end up in **Git history**?  
+        - Could someone accidentally **expose it publicly**?  
+        - Are there **best practices** for storing secrets in code?
+        """)
     
     st.subheader("What is the vulnerability?")
     
@@ -635,8 +784,24 @@ def mission_secure_dev():
 
 def mission_insider():
     st.header("🕵️ Mission 10: Insider Threat")
-    st.markdown("You notice a colleague from Sales copying the entire 'Client Master Database' (including credit limits and tax IDs) to a personal USB drive.")
-    st.markdown("*They say: 'I just need to work on this at home over the weekend.'*")
+    st.markdown("""
+    While walking past the Sales department, you notice a colleague **copying the entire 'Client Master Database'**  
+    (including credit limits, tax IDs, and sensitive contact details) onto a personal USB drive.
+
+    They catch your eye and casually say:  
+    *“I just need to work on this at home over the weekend.”*
+
+    Your gut tells you this could be a serious security issue.
+    """)
+
+     # Interactive context panel
+    with st.expander("🔍 Consider the Risks"):
+        st.markdown("""
+        - Personal USB drives are **not monitored or encrypted**.  
+        - Data leaving the corporate network can result in **NDPR/AML violations**.  
+        - Even well-intentioned employees can unintentionally cause **data breaches**.  
+        - Secure remote work should be done via **VPN, VDI, or authorized cloud storage**.
+        """)
     
     st.subheader("Action:")
     
