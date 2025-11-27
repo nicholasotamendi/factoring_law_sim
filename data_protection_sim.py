@@ -390,7 +390,7 @@ def dashboard():
     ### 🎯 Your Objectives
     1. Complete all **{TOTAL_MISSIONS} Missions**.
     2. **Warning:** Incorrect answers will result in **0 points** and you cannot retry.
-    3. Achieve a score of at least **80%** to earn your **Certificate**.
+    3. Achieve a score of at least **80%** to earn your **Data Protection Certificate**.
     
     
     Enter your details below to begin:
