@@ -1,22 +1,2 @@
 Timestamp,Username,Email,Score,Completed,DurationSeconds
-2025-11-21 15:25:42,Tester lomo latile,N/A,500,True,999999.0
-2025-11-21 15:27:15,Tester lomo latile,N/A,500,True,999999.0
-2025-11-21 15:27:29,Tester lomo latile,N/A,500,True,999999.0
-2025-11-21 15:50:26,Nicholas Tester,N/A,800,True,999999.0
-2025-11-21 15:50:47,Nicholas Tester,N/A,800,True,999999.0
-2025-11-21 16:13:29,Better Tester,N/A,800,True,999999.0
-2025-11-24 12:22:32,Ajagbe,N/A,1000,True,999999.0
-2025-11-24 17:16:00,Ajagbe,N/A,1000,True,999999.0
-2025-11-24 17:16:11,Ajagbe,N/A,1000,True,999999.0
-2025-11-24 17:16:27,Ajagbe,N/A,1000,True,999999.0
-2025-11-24 17:16:29,Ajagbe,N/A,1000,True,999999.0
-2025-11-24 18:09:16,Test,N/A,700,True,999999.0
-2025-11-24 18:20:58,Taskmaster,N/A,1000,True,999999.0
-2025-11-24 18:42:09,Tucheliban,N/A,1000,True,999999.0
-2025-11-24 18:49:25,Trainee,N/A,1000,True,999999.0
-2025-11-24 18:59:31,Juniper Berry,N/A,1000,True,77.969318
-2025-11-26 10:23:35,Tech Savy,Lomo@myfiducia.com,1000,True,46.927396
-2025-11-26 10:29:44,Oduduwa,Savage@myfiducia.com,1000,True,48.822614
-2025-11-26 10:37:22,dodo,dodo@myfiducia.com,1000,True,37.886943
-2025-11-27 09:55:01,DamiDamoche,Dami@myfiducia.com,1000,True,93.263439
-2025-11-27 10:50:50,Janey Chance Philips,Jane@myfiducia.com,1000,True,156.118031
+
