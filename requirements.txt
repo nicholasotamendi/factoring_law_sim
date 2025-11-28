@@ -1,3 +1,6 @@
 streamlit
 fpdf
 pandas
+gspread
+google-auth
+
